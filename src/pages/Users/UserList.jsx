@@ -6,7 +6,7 @@ import Modal from "../../components/common/Modal";
 import axiosClient from "../../api/axiosClient";
 import Pagination from "../../components/common/Pagination";
 import toast from "react-hot-toast";
-import UserCard from "./UserCARD.JSX";
+import UserCard from "./UserCard.jsx";
 
 export default function UserList() {
   const users = useSocietyStore((s) => s.users);
