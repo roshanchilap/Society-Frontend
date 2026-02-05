@@ -1,13 +1,16 @@
 import { Calendar, FileText, Home, Edit, Trash, Download } from "lucide-react";
 import axiosClient from "../../api/axiosClient";
 import { useAuthStore } from "../../auth/useAuthStore";
+import { useState } from "react";
 
 export default function MaintenanceCard({ item, onEdit, onDelete }) {
   const role = useAuthStore((s) => s.role); // <-- IMPORTANT
   const dueDate = new Date(item.dueDate).toLocaleDateString();
+  const [downloading, setDownloading] = useState(false); // NEW state
 
   const downloadSlip = async () => {
     try {
+      setDownloading(true); // start loading
       const res = await axiosClient.get(`/maintenance/${item._id}/slip`, {
         responseType: "blob",
       });
@@ -19,6 +22,8 @@ export default function MaintenanceCard({ item, onEdit, onDelete }) {
       a.click();
     } catch (err) {
       console.error("Slip download failed:", err);
+    } finally {
+      setDownloading(false); // stop loading
     }
   };
 
@@ -89,13 +94,38 @@ export default function MaintenanceCard({ item, onEdit, onDelete }) {
         {slipAvailable && (
           <button
             onClick={downloadSlip}
-            className="w-full flex items-center justify-center gap-2 py-2.5 
+            disabled={downloading}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 
              rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600
              text-white text-sm font-semibold shadow-md
-             hover:opacity-90 transition active:scale-95"
+             transition active:scale-95
+             ${downloading ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
           >
-            <Download size={16} className="opacity-90" />
-            Download Receipt
+            {downloading ? (
+              <svg
+                className="animate-spin h-4 w-4 text-white mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                ></path>
+              </svg>
+            ) : (
+              <Download size={16} className="opacity-90" />
+            )}
+            {downloading ? "Downloading..." : "Download Receipt"}
           </button>
         )}
       </div>

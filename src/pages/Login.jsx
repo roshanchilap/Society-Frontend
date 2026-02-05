@@ -15,6 +15,7 @@ export default function Login() {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // NEW
 
   const validate = () => {
     let e = {};
@@ -36,6 +37,7 @@ export default function Login() {
     e.preventDefault();
     if (!validate()) return;
 
+    setLoading(true); // start loading
     try {
       await login(form.societyCode, form.email, form.password);
       toast.success("Login successful");
@@ -43,18 +45,20 @@ export default function Login() {
     } catch (err) {
       const message = err?.response?.data?.message || "Login failed";
       toast.error(message);
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
+    <div className="min-h-screen flex flex-col md:grid md:grid-cols-2">
       {/* Left Section */}
-      <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 p-10">
-        <div className="text-white max-w-md">
-          <h1 className="text-4xl font-extrabold mb-4 drop-shadow-lg">
+      <div className="flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 p-6 sm:p-8">
+        <div className="text-white max-w-md text-center md:text-left">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 md:mb-4 drop-shadow-lg">
             Welcome to Society Portal
           </h1>
-          <p className="text-lg opacity-90">
+          <p className="text-sm sm:text-base md:text-lg opacity-90">
             Manage flats, maintenance, announcements, and users with ease. A
             secure, smart, and modern system for your society.
           </p>
@@ -62,12 +66,12 @@ export default function Login() {
       </div>
 
       {/* Right Section (Login Card) */}
-      <div className="flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex items-center justify-center p-6 sm:p-8 bg-gray-50">
         <div
-          className="w-full max-w-md bg-white/80 backdrop-blur-xl p-8 rounded-2xl 
-          shadow-xl border border-gray-200 animate-fadeIn"
+          className="w-full max-w-md bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-xl 
+          shadow-lg border border-gray-200 animate-fadeIn"
         >
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-800">
             Login
           </h2>
 
@@ -88,7 +92,7 @@ export default function Login() {
                   onChange={(e) =>
                     setForm({ ...form, societyCode: e.target.value })
                   }
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg bg-white 
+                  className={`w-full pl-10 pr-3 py-2 sm:py-3 border rounded-lg bg-white 
                     focus:ring-2 focus:ring-blue-400 focus:outline-none
                     ${
                       errors.societyCode ? "border-red-500" : "border-gray-300"
@@ -115,7 +119,7 @@ export default function Login() {
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg bg-white
+                  className={`w-full pl-10 pr-3 py-2 sm:py-3 border rounded-lg bg-white
                     focus:ring-2 focus:ring-blue-400 focus:outline-none
                     ${errors.email ? "border-red-500" : "border-gray-300"}`}
                   placeholder="you@example.com"
@@ -142,7 +146,7 @@ export default function Login() {
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg bg-white 
+                  className={`w-full pl-10 pr-3 py-2 sm:py-3 border rounded-lg bg-white 
                     focus:ring-2 focus:ring-blue-400 focus:outline-none
                     ${errors.password ? "border-red-500" : "border-gray-300"}`}
                   placeholder="Enter password"
@@ -155,11 +159,36 @@ export default function Login() {
 
             {/* Button */}
             <button
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 
-                         text-white py-2 rounded-lg font-medium shadow-md 
-                         hover:shadow-lg hover:opacity-90 transition-all"
+              type="submit"
+              disabled={loading}
+              className={`w-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 
+                         text-white py-2 sm:py-3 rounded-lg font-medium shadow-md 
+                         hover:shadow-lg transition-all
+                         ${loading ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
             >
-              Login
+              {loading ? (
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>

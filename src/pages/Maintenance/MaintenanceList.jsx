@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import axiosClient from "../../api/axiosClient";
 import FilterBar from "../../components/common/FilterBar";
 import MaintenanceCard from "./MaintenanceCard";
@@ -9,6 +9,8 @@ import { useSocietyStore } from "../../store/useAdminStore";
 import { useAuthStore } from "../../auth/useAuthStore";
 import { useOwnerStore } from "../../store/useOwnerStore";
 import toast from "react-hot-toast";
+import { Download, FileDown, FileText, Plus } from "lucide-react";
+
 
 export default function MaintenanceList() {
   const role = useAuthStore((s) => s.role);
@@ -203,35 +205,101 @@ export default function MaintenanceList() {
     }
   };
 
+    const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // close on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   return (
     <div>
       {role === "admin" && (
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <h1 className="text-xl md:text-2xl font-semibold">Maintenance</h1>
+<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <h1 className="text-lg sm:text-2xl font-semibold">
+        Maintenance
+      </h1>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={downloadCSV}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm md:text-base hover:bg-green-700 w-full sm:w-auto"
-            >
-              Download CSV
-            </button>
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Download dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="
+              flex items-center gap-2
+              bg-gray-900 text-white
+              px-4 py-2.5
+              rounded-lg shadow
+              text-sm
+              hover:bg-gray-800 transition
+              active:scale-95
+            "
+          >
+            <Download size={16} />
+            Download
+          </button>
 
-            <button
-              onClick={downloadPDF}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm md:text-base hover:bg-red-700 w-full sm:w-auto"
-            >
-              Download PDF
-            </button>
+          {open && (
+            <div className="
+              absolute right-0 mt-2
+              w-40
+              bg-white
+              border border-gray-200
+              rounded-lg shadow-lg
+              z-20
+            ">
+              <button
+                onClick={() => {
+                  downloadCSV();
+                  setOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                <FileDown size={14} />
+                Excel (CSV)
+              </button>
 
-            <button
-              onClick={openAddForm}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm md:text-base hover:bg-blue-700 w-full sm:w-auto"
-            >
-              Add Maintenance
-            </button>
-          </div>
+              <button
+                onClick={() => {
+                  downloadPDF();
+                  setOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                <FileText size={14} />
+                PDF
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Add button */}
+        <button
+          onClick={openAddForm}
+          className="
+            flex items-center gap-2
+            bg-blue-600 text-white
+            px-4 py-2.5
+            rounded-lg shadow
+            text-sm
+            hover:bg-blue-700 transition
+            active:scale-95
+          "
+        >
+          <Plus size={16} />
+          Add
+        </button>
+      </div>
+    </div>
+
+
       )}
       {/* FILTERS */}
       <FilterBar

@@ -53,7 +53,9 @@ export default function DashboardLayout() {
 
       setNotifications(visibleNotifications);
       setUnreadCount(countRes.data.count || 0);
-    } catch {}
+    }  catch(e) {
+      console.log("error", e);
+    }
   };
 
   useEffect(() => {
@@ -93,7 +95,9 @@ export default function DashboardLayout() {
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
       );
       setUnreadCount((c) => Math.max(0, c - 1));
-    } catch {}
+    } catch(e) {
+      console.log("error", e);
+    }
   };
 
   /* ----------------------------------
@@ -104,14 +108,16 @@ export default function DashboardLayout() {
       await axiosClient.put("/notifications/my/read-all");
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
-    } catch {}
+    } catch(e) {
+      console.log("error", e);
+    }
   };
 
   return (
     <div className="flex h-screen">
       {/* Sidebar Desktop */}
       <div className="hidden md:block">
-        <Sidebar />
+        <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
       {/* Sidebar Mobile Overlay */}
@@ -132,15 +138,16 @@ export default function DashboardLayout() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col">
         {/* Navbar */}
-        <header
-          className="
+       <header
+  className="
+    sticky top-0 z-30
     h-16 px-4 md:px-6
     flex items-center justify-between
     bg-white
     border-b border-gray-200
     shadow-sm
   "
-        >
+>
           {/* LEFT */}
           <div className="flex items-center gap-3">
             <button

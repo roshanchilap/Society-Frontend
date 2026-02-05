@@ -10,6 +10,7 @@ import axiosClient from "../../../api/axiosClient";
 import { useAuthStore } from "../../../auth/useAuthStore";
 import { useSocietyStore } from "../../../store/useAdminStore";
 import { useOwnerStore } from "../../../store/useOwnerStore";
+import { useState } from "react";
 
 export default function RecentPaymentsWidget() {
   const role = useAuthStore((s) => s.role);
@@ -22,8 +23,12 @@ export default function RecentPaymentsWidget() {
       ? adminMaintenance.filter((m) => m.status === "paid")
       : ownerMaintenance.filter((m) => m.status === "paid");
 
+  // Track downloading state per slip
+  const [downloadingId, setDownloadingId] = useState(null);
+
   const downloadSlip = async (id, slipNumber) => {
     try {
+      setDownloadingId(id); // start loading for this slip
       const res = await axiosClient.get(`/maintenance/${id}/slip`, {
         responseType: "blob",
       });
@@ -35,6 +40,8 @@ export default function RecentPaymentsWidget() {
       a.click();
     } catch (err) {
       console.error("Slip download failed:", err);
+    } finally {
+      setDownloadingId(null); // stop loading
     }
   };
 
@@ -98,11 +105,40 @@ export default function RecentPaymentsWidget() {
             {m.slipNumber && (
               <button
                 onClick={() => downloadSlip(m._id, m.slipNumber)}
-                className="mt-4 flex items-center gap-1 text-xs px-3 py-1.5 
-                bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all
-                shadow-sm active:scale-95"
+                disabled={downloadingId === m._id}
+                className={`mt-4 flex items-center justify-center gap-2 text-xs px-3 py-1.5 
+                  rounded-lg bg-blue-600 text-white shadow-sm transition-all active:scale-95
+                  ${
+                    downloadingId === m._id
+                      ? "opacity-70 cursor-not-allowed"
+                      : "hover:bg-blue-700"
+                  }`}
               >
-                <Download size={14} /> Download Slip
+                {downloadingId === m._id ? (
+                  <svg
+                    className="animate-spin h-4 w-4 text-white mr-1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <Download size={14} />
+                )}
+                {downloadingId === m._id ? "Downloading..." : "Download Slip"}
               </button>
             )}
           </li>
