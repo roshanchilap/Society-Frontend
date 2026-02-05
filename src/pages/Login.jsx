@@ -15,7 +15,7 @@ export default function Login() {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // NEW
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     let e = {};
@@ -37,7 +37,7 @@ export default function Login() {
     e.preventDefault();
     if (!validate()) return;
 
-    setLoading(true); // start loading
+    setLoading(true);
     try {
       await login(form.societyCode, form.email, form.password);
       toast.success("Login successful");
@@ -46,33 +46,30 @@ export default function Login() {
       const message = err?.response?.data?.message || "Login failed";
       toast.error(message);
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:grid md:grid-cols-2">
-      {/* Left Section */}
-      <div className="flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 p-6 sm:p-8">
+    <div className="min-h-screen grid grid-rows-[auto_1fr] md:grid-rows-1 md:grid-cols-2">
+      {/* LEFT – HERO */}
+      <div className="flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 px-6 py-10 md:p-12">
         <div className="text-white max-w-md text-center md:text-left">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 md:mb-4 drop-shadow-lg">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
             Welcome to Society Portal
           </h1>
-          <p className="text-sm sm:text-base md:text-lg opacity-90">
-            Manage flats, maintenance, announcements, and users with ease. A
-            secure, smart, and modern system for your society.
+          <p className="text-sm sm:text-base opacity-90 leading-relaxed">
+            Manage flats, maintenance, announcements, and users with ease.
+            A secure and modern system for your society.
           </p>
         </div>
       </div>
 
-      {/* Right Section (Login Card) */}
-      <div className="flex items-center justify-center p-6 sm:p-8 bg-gray-50">
-        <div
-          className="w-full max-w-md bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-xl 
-          shadow-lg border border-gray-200 animate-fadeIn"
-        >
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-800">
-            Login
+      {/* RIGHT – LOGIN CARD */}
+      <div className="flex items-center justify-center bg-gray-50 px-4 py-10">
+        <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-200">
+          <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-800">
+            Login to your account
           </h2>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -83,7 +80,7 @@ export default function Login() {
               </label>
               <div className="relative mt-1">
                 <Building2
-                  className="absolute left-3 top-2.5 text-gray-400"
+                  className="absolute left-3 top-3 text-gray-400"
                   size={18}
                 />
                 <input
@@ -92,7 +89,8 @@ export default function Login() {
                   onChange={(e) =>
                     setForm({ ...form, societyCode: e.target.value })
                   }
-                  className={`w-full pl-10 pr-3 py-2 sm:py-3 border rounded-lg bg-white 
+                  className={`w-full pl-10 pr-3 py-2.5 sm:py-3 text-sm sm:text-base
+                    border rounded-lg bg-white
                     focus:ring-2 focus:ring-blue-400 focus:outline-none
                     ${
                       errors.societyCode ? "border-red-500" : "border-gray-300"
@@ -109,17 +107,22 @@ export default function Login() {
 
             {/* Email */}
             <div>
-              <label className="text-sm font-medium text-gray-600">Email</label>
+              <label className="text-sm font-medium text-gray-600">
+                Email
+              </label>
               <div className="relative mt-1">
                 <Mail
-                  className="absolute left-3 top-2.5 text-gray-400"
+                  className="absolute left-3 top-3 text-gray-400"
                   size={18}
                 />
                 <input
                   type="email"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className={`w-full pl-10 pr-3 py-2 sm:py-3 border rounded-lg bg-white
+                  onChange={(e) =>
+                    setForm({ ...form, email: e.target.value })
+                  }
+                  className={`w-full pl-10 pr-3 py-2.5 sm:py-3 text-sm sm:text-base
+                    border rounded-lg bg-white
                     focus:ring-2 focus:ring-blue-400 focus:outline-none
                     ${errors.email ? "border-red-500" : "border-gray-300"}`}
                   placeholder="you@example.com"
@@ -137,7 +140,7 @@ export default function Login() {
               </label>
               <div className="relative mt-1">
                 <Lock
-                  className="absolute left-3 top-2.5 text-gray-400"
+                  className="absolute left-3 top-3 text-gray-400"
                   size={18}
                 />
                 <input
@@ -146,25 +149,35 @@ export default function Login() {
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
-                  className={`w-full pl-10 pr-3 py-2 sm:py-3 border rounded-lg bg-white 
+                  className={`w-full pl-10 pr-3 py-2.5 sm:py-3 text-sm sm:text-base
+                    border rounded-lg bg-white
                     focus:ring-2 focus:ring-blue-400 focus:outline-none
-                    ${errors.password ? "border-red-500" : "border-gray-300"}`}
+                    ${
+                      errors.password ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="Enter password"
                 />
               </div>
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password}
+                </p>
               )}
             </div>
 
-            {/* Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 
-                         text-white py-2 sm:py-3 rounded-lg font-medium shadow-md 
-                         hover:shadow-lg transition-all
-                         ${loading ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
+              className="
+                w-full flex items-center justify-center
+                bg-gradient-to-r from-blue-600 to-purple-600
+                text-white py-2.5 sm:py-3
+                rounded-xl font-medium
+                shadow-md hover:shadow-lg
+                transition-all active:scale-[0.98]
+                disabled:opacity-70 disabled:cursor-not-allowed
+              "
             >
               {loading ? (
                 <svg
@@ -180,12 +193,12 @@ export default function Login() {
                     r="10"
                     stroke="currentColor"
                     strokeWidth="4"
-                  ></circle>
+                  />
                   <path
                     className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
-                  ></path>
+                  />
                 </svg>
               ) : null}
               {loading ? "Logging in..." : "Login"}

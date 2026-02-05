@@ -7,11 +7,14 @@ import QuickActions from "./widgets/QuickActions";
 
 import { Home, Users, UserCheck, AlertTriangle } from "lucide-react";
 import { useSocietyStore } from "../../store/useAdminStore";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const flats = useSocietyStore((s) => s.flats);
   const users = useSocietyStore((s) => s.users);
   const maintenance = useSocietyStore((s) => s.maintenance);
+
+  const navigate = useNavigate();
 
   const totalFlats = flats.length;
   const owners = users.filter((u) => u.role === "owner").length;
@@ -32,6 +35,7 @@ export default function AdminDashboard() {
           Icon={Home}
           bg="bg-blue-50"
           iconBg="bg-blue-100"
+          onClick={() => navigate("/flats")}
         />
         <StatCard
           label="Owners"
@@ -39,6 +43,7 @@ export default function AdminDashboard() {
           Icon={UserCheck}
           bg="bg-green-50"
           iconBg="bg-green-100"
+          onClick={() => navigate("/flats")}
         />
         <StatCard
           label="Tenants"
@@ -46,6 +51,7 @@ export default function AdminDashboard() {
           Icon={Users}
           bg="bg-purple-50"
           iconBg="bg-purple-100"
+          onClick={() => navigate("/flats")}
         />
         <StatCard
           label="Pending Maintenance"
@@ -53,6 +59,7 @@ export default function AdminDashboard() {
           Icon={AlertTriangle}
           bg="bg-red-50"
           iconBg="bg-red-100"
+          onClick={() => navigate("/maintenance")}
         />
       </div>
 

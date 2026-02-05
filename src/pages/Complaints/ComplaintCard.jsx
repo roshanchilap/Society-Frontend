@@ -14,8 +14,6 @@ export default function ComplaintCard({ item, onOpen, onEdit, onDelete }) {
 
   const userId = user?._id?.toString();
 
-  console.log("role:", role, "userId:", userId, "createdBy:", item.createdBy);
-
   /* -----------------------------
      Helpers
   ----------------------------- */

@@ -138,26 +138,31 @@ export default function DashboardLayout() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col">
         {/* Navbar */}
-       <header
-  className="
-    sticky top-0 z-30
-    h-16 px-4 md:px-6
-    flex items-center justify-between
-    bg-white
-    border-b border-gray-200
-    shadow-sm
-  "
->
+        <header
+          className="
+            sticky top-0 z-30
+            h-16 px-4 md:px-6
+            flex items-center justify-between
+            bg-white/90 backdrop-blur
+            border-b border-gray-200
+            shadow-sm
+          "
+        >
           {/* LEFT */}
           <div className="flex items-center gap-3">
             <button
-              className="md:hidden p-2 rounded-md hover:bg-gray-200 transition"
+              className="
+                md:hidden p-2 rounded-lg
+                hover:bg-gray-200/70
+                transition-colors
+              "
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
             >
               <Menu size={22} className="text-gray-700" />
             </button>
 
-            <span className="text-base md:text-lg font-semibold text-gray-800">
+            <span className="text-base md:text-lg font-semibold text-gray-800 tracking-tight">
               Sai Pooja
             </span>
           </div>
@@ -166,22 +171,32 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-3 md:gap-4">
             {/* Date + Time (desktop only) */}
             <div
-              className="hidden md:flex items-center gap-2
-                    px-3 py-1 text-xs
-                    bg-gray-100 border border-gray-200
-                    rounded-md font-medium text-gray-700"
+              className="
+                hidden md:flex items-center gap-3
+                px-4 py-1.5
+                text-xs
+                bg-gray-50
+                border border-gray-200
+                rounded-lg
+                font-medium text-gray-700
+                shadow-sm
+              "
             >
               <ClockWidget />
+              <span className="text-gray-400">•</span>
               <DateWidget />
             </div>
 
             {/* Role badge (desktop only) */}
             <span
-              className="hidden md:inline-block
-                 px-3 py-1 text-xs
-                 bg-blue-100 text-blue-700
-                 border border-blue-200
-                 rounded-md font-semibold"
+              className="
+                hidden md:inline-flex items-center
+                px-3 py-1
+                text-xs font-semibold
+                bg-blue-50 text-blue-700
+                border border-blue-200
+                rounded-full
+              "
             >
               {role?.toUpperCase()}
             </span>
@@ -190,18 +205,25 @@ export default function DashboardLayout() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setOpenNotif((o) => !o)}
-                className="relative p-2 rounded-md hover:bg-gray-200 transition"
+                className="
+                  relative p-2 rounded-lg
+                  hover:bg-gray-200/70
+                  transition-colors
+                "
+                aria-label="Notifications"
               >
                 <Bell size={20} className="text-gray-700" />
 
                 {unreadCount > 0 && (
                   <span
-                    className="absolute -top-1 -right-1
-                       min-w-[16px] h-[16px]
-                       px-1 text-[10px]
-                       rounded-full
-                       bg-red-500 text-white
-                       flex items-center justify-center"
+                    className="
+                      absolute -top-1 -right-1
+                      min-w-[16px] h-[16px]
+                      px-1 text-[10px]
+                      rounded-full
+                      bg-red-500 text-white
+                      flex items-center justify-center
+                    "
                   >
                     {unreadCount}
                   </span>
@@ -212,11 +234,14 @@ export default function DashboardLayout() {
               {openNotif && (
                 <div
                   className="
-            absolute right-0 mt-2
-            w-[90vw] md:w-96
-            bg-white rounded-xl shadow-xl
-            border border-gray-200 z-30
-          "
+                    absolute right-0 mt-2
+                    w-[90vw] md:w-96
+                    bg-white
+                    rounded-xl
+                    shadow-xl
+                    border border-gray-200
+                    z-30
+                  "
                 >
                   {/* Top bar */}
                   <div className="flex items-center justify-between px-4 py-3">
@@ -228,9 +253,11 @@ export default function DashboardLayout() {
                       <button
                         onClick={markAllAsRead}
                         disabled={unreadCount === 0}
-                        className="text-xs px-2 py-1 rounded-md
-                           text-gray-600 hover:bg-gray-100
-                           disabled:opacity-40"
+                        className="
+                          text-xs px-2 py-1 rounded-md
+                          text-gray-600 hover:bg-gray-100
+                          disabled:opacity-40
+                        "
                       >
                         Mark all
                       </button>
@@ -238,9 +265,11 @@ export default function DashboardLayout() {
                       <button
                         onClick={clearReadFrontend}
                         disabled={notifications.length === 0}
-                        className="text-xs px-2 py-1 rounded-md
-                           text-gray-500 hover:bg-gray-100
-                           disabled:opacity-40"
+                        className="
+                          text-xs px-2 py-1 rounded-md
+                          text-gray-500 hover:bg-gray-100
+                          disabled:opacity-40
+                        "
                       >
                         Clear
                       </button>
@@ -258,9 +287,13 @@ export default function DashboardLayout() {
                         <div
                           key={n._id}
                           onClick={() => markAsRead(n._id)}
-                          className="flex gap-3 px-3 py-3 rounded-lg
-                             cursor-pointer transition
-                             hover:bg-gray-100"
+                          className="
+                            flex gap-3 px-3 py-3
+                            rounded-lg
+                            cursor-pointer
+                            transition
+                            hover:bg-gray-100
+                          "
                         >
                           {!n.isRead && (
                             <span className="mt-1.5 w-2 h-2 rounded-full bg-indigo-500" />
@@ -285,11 +318,11 @@ export default function DashboardLayout() {
             </div>
           </div>
         </header>
+
         {/* Page Content */}
         <main className="flex-1 p-6 overflow-y-auto">
           <Outlet />
         </main>
-
         <Footer />
       </div>
     </div>

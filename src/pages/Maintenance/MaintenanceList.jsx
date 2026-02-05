@@ -341,28 +341,44 @@ export default function MaintenanceList() {
           {paginatedItems.length === 0 ? (
             <p className="text-gray-600">No maintenance records found.</p>
           ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {paginatedItems.map((m) => (
-                  <MaintenanceCard
-                    key={m._id}
-                    item={m}
-                    onEdit={() => openEditForm(m)}
-                    onDelete={() => {
-                      setDeleteId(m._id);
-                      setShowDeleteModal(true);
-                    }}
-                  />
-                ))}
-              </div>
+          <>
+          {/* COUNT BAR */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div className="text-sm text-gray-600">
+              Count: {" "}
+              <span className="font-medium text-gray-800">
+                {paginatedItems.length}
+              </span>{" "}
+            </div>
 
-              {/* PAGINATION */}
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
+            <div className="text-sm text-gray-500">
+              Page {page} of {totalPages}
+            </div>
+          </div>
+
+          {/* GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {paginatedItems.map((m) => (
+              <MaintenanceCard
+                key={m._id}
+                item={m}
+                onEdit={() => openEditForm(m)}
+                onDelete={() => {
+                  setDeleteId(m._id);
+                  setShowDeleteModal(true);
+                }}
               />
-            </>
+            ))}
+          </div>
+
+          {/* PAGINATION */}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </>
+
           )}
         </>
       )}

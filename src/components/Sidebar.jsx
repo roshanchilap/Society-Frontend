@@ -34,14 +34,13 @@ export default function Sidebar({ onClose }) {
 
   const menu = role === "admin" ? adminMenu : memberMenu;
 
-  // ✅ Close sidebar automatically on route change (mobile only)
+  // Auto-close on route change (mobile)
   useEffect(() => {
     if (window.innerWidth < 768) {
       onClose?.();
     }
   }, [location.pathname]);
 
-  // ✅ reusable close handler for buttons
   const handleClose = () => {
     if (window.innerWidth < 768) {
       onClose?.();
@@ -51,16 +50,20 @@ export default function Sidebar({ onClose }) {
   return (
     <aside
       className="
-        w-64 h-screen
-        bg-white shadow-lg p-6
-        flex flex-col justify-between
+        w-64
+        min-h-screen
+        bg-white
+        shadow-lg
+        flex flex-col
       "
     >
-      {/* Top Section */}
-      <div>
+      {/* 🔼 Scrollable menu */}
+      <div className="flex-1 overflow-y-auto px-6 pt-6">
         <h2
-          className="text-xl font-bold mb-8 tracking-tight text-gray-800
-                     pl-3 border-l-4 border-blue-600"
+          className="
+            text-xl font-bold mb-8 tracking-tight text-gray-800
+            pl-3 border-l-4 border-blue-600
+          "
         >
           Society Panel
         </h2>
@@ -91,21 +94,29 @@ export default function Sidebar({ onClose }) {
         </nav>
       </div>
 
-      {/* Bottom Section */}
-      {token && (
+      {/* 🔽 Logout ALWAYS visible */}
+    {token && (
+      <div className="px-4 pt-4 pb-14 md:pb-4">
         <button
           onClick={() => {
             logout();
-            navigate("/login"); // redirect after logout
+            navigate("/login");
             handleClose();
           }}
-          className="flex items-center gap-3 w-full px-4 py-2 text-sm
-                     text-red-600 rounded-lg bg-red-100 hover:bg-red-200"
+          className="
+            flex items-center gap-3 w-full
+            px-4 py-2 text-sm
+            text-red-600
+            rounded-lg
+            bg-red-100 hover:bg-red-200
+          "
         >
           <LogOut size={18} />
           Logout
         </button>
-      )}
+      </div>
+    )}
+
     </aside>
   );
 }

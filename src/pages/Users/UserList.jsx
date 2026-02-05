@@ -361,6 +361,20 @@ export default function UserList() {
             <p className="text-gray-600 mt-6">No users found.</p>
           ) : (
             <>
+            {/* COUNT BAR */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div className="text-sm text-gray-600">
+              Count: {" "}
+              <span className="font-medium text-gray-800">
+                {paginatedUsers.length}
+              </span>{" "}
+            </div>
+
+            <div className="text-sm text-gray-500">
+              Page {page} of {totalPages}
+            </div>
+          </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
                 {paginatedUsers.map((u) => (
                   <UserCard

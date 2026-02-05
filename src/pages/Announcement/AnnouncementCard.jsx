@@ -7,7 +7,6 @@ export default function NoticeCard({
   isAdmin,
   onOpen,
 }) {
-  console.log("item", item);
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
     const day = String(d.getDate()).padStart(2, "0");

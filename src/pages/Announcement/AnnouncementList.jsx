@@ -31,6 +31,8 @@ export default function NoticeList() {
 
   const users = useSocietyStore((s) => s.users);
 
+
+
   // ----------------- STATE -----------------
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -101,7 +103,7 @@ export default function NoticeList() {
       setShowForm(false);
       fetchAll();
     } catch (err) {
-      alert("Failed to create notice");
+      alert("Failed to create notice", err);
     }
   };
 
@@ -128,7 +130,7 @@ export default function NoticeList() {
       setShowEdit(false);
       fetchAll();
     } catch (err) {
-      alert("Failed to update notice");
+      alert("Failed to update notice",err);
     }
   };
 
@@ -144,7 +146,7 @@ export default function NoticeList() {
       setShowDelete(false);
       fetchAll();
     } catch (err) {
-      alert("Failed to delete");
+      alert("Failed to delete", err);
     }
   };
 
@@ -170,7 +172,8 @@ export default function NoticeList() {
             {viewItem.message}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            Posted on: {new Date(viewItem.createdAt).toLocaleDateString()}
+           Posted on:{" "}
+            {new Date(viewItem.createdAt).toLocaleDateString("en-GB")}
           </p>
         </Modal>
       )}

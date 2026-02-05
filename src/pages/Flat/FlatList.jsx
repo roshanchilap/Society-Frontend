@@ -314,6 +314,19 @@ export default function FlatList() {
       {processedFlats.length === 0 && (
         <p className="text-gray-600">No flats found.</p>
       )}
+        {/* COUNT BAR */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div className="text-sm text-gray-600">
+              Count: {" "}
+              <span className="font-medium text-gray-800">
+                {paginatedFlats.length}
+              </span>{" "}
+            </div>
+
+            <div className="text-sm text-gray-500">
+              Page {page} of {totalPages}
+            </div>
+          </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {paginatedFlats.map((flat) => (

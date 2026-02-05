@@ -1,7 +1,8 @@
-export default function StatCard({ label, value, Icon, bg, iconBg }) {
+export default function StatCard({ label, value, Icon, bg, iconBg, onClick }) {
   return (
     <div
-      className={`p-4 sm:p-5 rounded-xl shadow-sm hover:shadow-md transition-all ${bg}`}
+      className={`p-4 sm:p-5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer ${bg}`}
+      onClick={onClick}
     >
       <div className="flex items-center justify-between gap-4">
         <div>
