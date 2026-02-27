@@ -39,7 +39,7 @@ function getErrorMessage(error) {
 }
 
 const axiosClient = axios.create({
-  baseURL: "https://society-backend-5suw.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL1,
   // baseURL: "http://localhost:5000/api",
 });
 

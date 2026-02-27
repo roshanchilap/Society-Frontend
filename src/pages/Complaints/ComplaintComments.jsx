@@ -49,12 +49,11 @@ export default function ComplaintComments({ complaintId }) {
 
     const token = localStorage.getItem("token");
 
-    const socket = io("https://society-backend-5suw.onrender.com", {
+    const socket = io(import.meta.env.VITE_API_URL2, {
       auth: { token },
       reconnection: true,
       reconnectionAttempts: 5,
     });
-
     socketRef.current = socket;
 
     socket.emit("joinComplaint", complaintId);
@@ -270,18 +269,30 @@ export default function ComplaintComments({ complaintId }) {
 
         {/* Typing Indicator */}
         {typingUsers.length > 0 && (
-          <div className="mb-2 px-3 py-2 rounded-md bg-gray-100 border text-xs text-gray-600 flex items-center gap-2">
+          <div className="mb-3 flex items-center gap-2">
 
-            <span className="animate-pulse text-gray-500">
-              ●
-            </span>
+            {/* avatar bubble */}
+            <div className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-white">
+              {typingUsers[0].name?.charAt(0)?.toUpperCase()}
+            </div>
 
-            <span className="whitespace-nowrap overflow-hidden text-ellipsis">
-              {typingText()}
-            </span>
+            {/* typing box */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-white border shadow-sm">
+
+              {/* animated dots */}
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" />
+              </div>
+
+              {/* text */}
+              <span className="text-xs text-gray-500">
+                {typingText()}
+              </span>
+            </div>
           </div>
         )}
-
         <textarea
           rows={2}
           value={message}
