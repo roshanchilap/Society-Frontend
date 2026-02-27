@@ -39,8 +39,8 @@ function getErrorMessage(error) {
 }
 
 const axiosClient = axios.create({
-  // baseURL: "https://society-backend-5suw.onrender.com/api",
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://society-backend-5suw.onrender.com/api",
+  // baseURL: "http://localhost:5000/api",
 });
 
 // Attach token automatically before each request
