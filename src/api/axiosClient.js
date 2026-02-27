@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "../auth/useAuthStore";
 
-let restoringFlag = false; // internal variable
+let restoringFlag = false;
 
 export function setRestoring(value) {
   restoringFlag = value;
