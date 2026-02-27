@@ -49,7 +49,7 @@ export default function ComplaintComments({ complaintId }) {
 
     const token = localStorage.getItem("token");
 
-    const socket = io("http://localhost:5000", {
+    const socket = io("https://society-backend-5suw.onrender.com/api", {
       auth: { token },
     });
 
