@@ -2,91 +2,206 @@ import { useEffect, useRef, useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../../auth/useAuthStore";
+import { io } from "socket.io-client";
 
 export default function ComplaintComments({ complaintId }) {
-  const role = useAuthStore((s) => s.role);
+  const user = useAuthStore((s) => s.user);
+
+  const socketRef = useRef(null);
+  const bottomRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const [comments, setComments] = useState([]);
-  const [me, setMe] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [typingUsers, setTypingUsers] = useState([]);
 
-  const bottomRef = useRef(null);
+  const me = user?._id?.toString();
 
-  /* ----------------------------------
-     Fetch comments
-  ---------------------------------- */
+  /* =========================
+     Load history
+  ========================= */
   const fetchComments = async () => {
     try {
       setLoading(true);
-      const res = await axiosClient.get(`/complaints/${complaintId}/comments`);
-
+      const res = await axiosClient.get(
+        `/complaints/${complaintId}/comments`
+      );
       setComments(res.data.comments || []);
-      setMe(res.data.me || null);
     } catch {
-      toast.error("Failed to load comments");
+      toast.error("Failed to load discussion");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchComments();
+    if (complaintId) fetchComments();
   }, [complaintId]);
 
-  /* ----------------------------------
-     Auto scroll to bottom
-  ---------------------------------- */
+
+
+  /* =========================
+     Socket Connection
+  ========================= */
+  useEffect(() => {
+    if (!complaintId) return;
+
+    const token = localStorage.getItem("token");
+
+    const socket = io("http://localhost:5000", {
+      auth: { token },
+    });
+
+    socketRef.current = socket;
+
+    socket.emit("joinComplaint", complaintId);
+
+    /* ---------- new message ---------- */
+    socket.on("newMessage", (msg) => {
+      setComments((prev) => {
+        if (prev.some((c) => c._id === msg._id)) return prev;
+        return [...prev, msg];
+      });
+    });
+
+    /* ---------- typing start ---------- */
+    socket.on("userTyping", ({ userId, name }) => {
+      if (!userId || userId === me) return;
+
+      setTypingUsers((prev) => {
+        if (prev.some((u) => u.id === userId)) return prev;
+        return [
+          ...prev,
+          {
+            id: userId,
+            name: name || "User",
+          },
+        ];
+      });
+    });
+
+    /* ---------- typing stop ---------- */
+    socket.on("userStoppedTyping", ({ userId }) => {
+      setTypingUsers((prev) =>
+        prev.filter((u) => u.id !== userId)
+      );
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("Socket error:", err.message);
+      toast.error("Realtime connection failed");
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+      setTypingUsers([]);
+      clearTimeout(typingTimeoutRef.current);
+    };
+  }, [complaintId]);
+
+
+
+  /* =========================
+     Auto Scroll
+  ========================= */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
-  /* ----------------------------------
-     Add comment (optimistic)
-  ---------------------------------- */
-  const handleAddComment = async () => {
+
+
+  /* =========================
+     Send Message
+  ========================= */
+  const handleAddComment = () => {
     if (!message.trim()) return;
 
-    const optimistic = {
-      _id: `tmp-${Date.now()}`,
+    socketRef.current?.emit("sendMessage", {
+      complaintId,
       message,
-      createdAt: new Date().toISOString(),
-      createdBy: {
-        _id: me,
-        name: "You",
-        role,
-      },
-    };
+    });
 
-    setComments((prev) => [...prev, optimistic]);
+    socketRef.current?.emit("stopTyping", { complaintId });
+
     setMessage("");
-
-    try {
-      await axiosClient.post(`/complaints/${complaintId}/comments`, {
-        message,
-      });
-    } catch {
-      setComments((prev) => prev.filter((c) => c._id !== optimistic._id));
-      toast.error("Failed to add comment");
-    }
   };
 
+
+
+  /* =========================
+     Typing Logic
+  ========================= */
+  const handleTyping = (value) => {
+    console.log("USER:", user);
+    setMessage(value);
+
+    if (!socketRef.current) return;
+
+    socketRef.current.emit("typing", {
+      complaintId,
+      name: user?.name || "User",
+    });
+    clearTimeout(typingTimeoutRef.current);
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socketRef.current?.emit("stopTyping", { complaintId });
+    }, 1200);
+  };
+
+
+
+  /* =========================
+     Typing Text Formatter
+  ========================= */
+  const typingText = () => {
+    if (typingUsers.length === 0) return null;
+
+    if (typingUsers.length === 1) {
+      return `${typingUsers[0].name} is typing…`;
+    }
+
+    if (typingUsers.length === 2) {
+      return `${typingUsers[0].name} and ${typingUsers[1].name} are typing…`;
+    }
+
+    return `${typingUsers[0].name} and ${
+      typingUsers.length - 1
+    } others are typing…`;
+  };
+
+
+
+  /* =========================
+     UI
+  ========================= */
   if (loading) {
-    return <div className="p-4 text-xs text-gray-400">Loading discussion…</div>;
+    return (
+      <div className="p-4 text-xs text-gray-400">
+        Loading discussion…
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col max-h-[420px] bg-gray-50 rounded-lg p-4 overflow-hidden">
+    <div className="flex flex-col h-[420px] bg-gray-50 rounded-lg p-4">
+
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <span className="w-2 h-2 rounded-full bg-gray-400" />
-        <h4 className="text-sm font-semibold text-gray-800">Discussion</h4>
+        <h4 className="text-sm font-semibold text-gray-800">
+          Discussion
+        </h4>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+
         {comments.length === 0 ? (
-          <p className="text-xs text-gray-400">No discussion yet</p>
+          <p className="text-xs text-gray-400">
+            No discussion yet
+          </p>
         ) : (
           comments.map((c) => {
             const isMine = me && c.createdBy?._id === me;
@@ -95,7 +210,9 @@ export default function ComplaintComments({ complaintId }) {
             return (
               <div
                 key={c._id}
-                className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  isMine ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
                   className={`max-w-[85%] px-3 py-2 rounded-xl text-sm break-words
@@ -103,29 +220,39 @@ export default function ComplaintComments({ complaintId }) {
                       isMine
                         ? "bg-gray-200 text-gray-800 rounded-br-sm"
                         : isAdmin
-                          ? "bg-emerald-50 text-emerald-800 rounded-bl-sm"
-                          : "bg-white text-gray-800 rounded-bl-sm shadow-sm"
+                        ? "bg-emerald-50 text-emerald-800 rounded-bl-sm"
+                        : "bg-white text-gray-800 rounded-bl-sm shadow-sm"
                     }`}
                 >
                   {!isMine && (
                     <div
                       className={`text-[11px] font-medium mb-0.5
-                        ${isAdmin ? "text-emerald-700" : "text-gray-600"}`}
+                        ${
+                          isAdmin
+                            ? "text-emerald-700"
+                            : "text-gray-600"
+                        }`}
                     >
                       {c.createdBy?.name || "User"}
                     </div>
                   )}
 
-                  <p className="whitespace-pre-wrap">{c.message}</p>
+                  <p className="whitespace-pre-wrap">
+                    {c.message}
+                  </p>
 
                   <div
                     className={`mt-1 text-[10px]
-                      ${isMine ? "text-gray-500 text-right" : "text-gray-400"}`}
+                      ${
+                        isMine
+                          ? "text-gray-500 text-right"
+                          : "text-gray-400"
+                      }`}
                   >
-                    {new Date(c.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(c.createdAt).toLocaleTimeString(
+                      [],
+                      { hour: "2-digit", minute: "2-digit" }
+                    )}
                   </div>
                 </div>
               </div>
@@ -137,11 +264,26 @@ export default function ComplaintComments({ complaintId }) {
       </div>
 
       {/* Composer */}
-      <div className="mt-3 pt-3">
+      <div className="pt-3">
+
+        {/* Typing Indicator */}
+        {typingUsers.length > 0 && (
+          <div className="mb-2 px-3 py-2 rounded-md bg-gray-100 border text-xs text-gray-600 flex items-center gap-2">
+
+            <span className="animate-pulse text-gray-500">
+              ●
+            </span>
+
+            <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+              {typingText()}
+            </span>
+          </div>
+        )}
+
         <textarea
           rows={2}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => handleTyping(e.target.value)}
           placeholder="Write a reply…"
           className="w-full resize-none px-3 py-2 rounded-lg
                      border border-gray-300 text-sm
@@ -160,6 +302,7 @@ export default function ComplaintComments({ complaintId }) {
             Send
           </button>
         </div>
+
       </div>
     </div>
   );
